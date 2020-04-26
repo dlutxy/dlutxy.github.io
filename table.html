@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.bootcss.com/jquery/3.5.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.7.0/echarts-en.common.min.js"></script>
+</head>
+<body>
+    <label for="S">易感者：</label>
+    <input type="text" name="S" id="S" value="59170000">
+    <label for="E">潜伏者：</label>
+    <input type="text" name="E" id="E" value="4007">
+    <label for="I">感染者：</label>
+    <input type="text" name="I" id="I" value="786">
+    <br>
+    <label for="Sq">隔离感染者：</label>
+    <input type="text" name="Sq" id="Sq" value="2776">
+    <label for="Eq">隔离潜伏者：</label>
+    <input type="text" name="Eq" id="Eq" value="400">
+    <label for="R">康复人群：</label>
+    <input type="text" name="R" id="R" value="31">
+    <br>
+    <label for="q">隔离比例：</label>
+    <input type="text" name="q" id="q" value="1e-6">
+    <label for="beta">传染概率：</label>
+    <input type="text" name="beta" id="beta" value="2.05e-9">
+    <label for="c">接触率：</label>
+    <input type="text" name="c" id="c" value="2">
+    <label for="rou">有效接触系数：</label>
+    <input type="text" name="rou" id="rou" value="1">
+    <br>
+    <label for="sta">潜伏者相对传播能力比：</label>
+    <input type="text" name="sta" id="sta" value="1">
+    <label for="lmd">隔离接触速率：</label>
+    <input type="text" name="lmd" id="lmd" value="0.0714">
+    <label for="sgm">潜伏者转化率：</label>
+    <input type="text" name="sgm" id="sgm" value="0.1429">
+    <br>
+    <label for="alpha">病死率：</label>
+    <input type="text" name="alpha" id="alpha" value="2.7e-4">
+    <label for="deltaI">感染者隔离速率：</label>
+    <input type="text" name="deltaI" id="deltaI" value="0.13">
+    <label for="gamaI">感染者恢复速率：</label>
+    <input type="text" name="gamaI" id="gamaI" value="0.007">
+    <br>
+    <label for="deltaq">隔离潜伏着转化速率：</label>
+    <input type="text" name="deltaq" id="deltaq" value="0.13">
+    <label for="gamaH">隔离感染者回复速率：</label>
+    <input type="text" name="gamaH" id="gamaH" value="0.014">
+    <br>
+    <input type="button" value="预测" onclick="fn()">
+    <br>
+    <br>
+    <div id="main" style="width: 1000px; height: 800px;"></div>
+    <script>
+        function fn(){
+            $.ajax({
+                url:'http://127.0.0.1:8000/req/'+$('#S').val()
+                                                +':'+$('#E').val()
+                                                +':'+$('#I').val()
+                                                +':'+$('#Sq').val()
+                                                +':'+$('#Eq').val()
+                                                +':'+$('#R').val()
+                                                +':'+$('#q').val()
+                                                +':'+$('#beta').val()
+                                                +':'+$('#c').val()
+                                                +':'+$('#rou').val()
+                                                +':'+$('#sta').val()
+                                                +':'+$('#lmd').val()
+                                                +':'+$('#sgm').val()
+                                                +':'+$('#alpha').val()
+                                                +':'+$('#deltaI').val()
+                                                +':'+$('#gamaI').val()
+                                                +':'+$('#deltaq').val()
+                                                +':'+$('#gamaH').val()
+                                                                   ,
+                success:function(data){
+                    console.log(data)
+                    var myChart = echarts.init(document.getElementById('main'));
+
+                    option = {
+                        title: {
+                            text: '100日内新冠病毒预测',
+                            subtext: 'DUTIR'
+                        },
+                        tooltip: {
+                            trigger: 'axis'
+                        },
+                        legend: {
+                            data: ['感染人数', '康复人数']
+                        },
+                        toolbox: {
+                            show: true,
+                            feature: {
+                                dataZoom: {
+                                    yAxisIndex: 'none'
+                                },
+                                dataView: {readOnly: false},
+                                magicType: {type: ['line', 'bar']},
+                                restore: {},
+                                saveAsImage: {}
+                            }
+                        },
+                        xAxis: {
+                            type: 'category',
+                            boundaryGap: false,
+                            data: data[0],
+                            axisLabel: {
+                                formatter: '{value} 天'
+                            }
+                        },
+                        yAxis: {
+                            type: 'value',
+                            axisLabel: {
+                                formatter: '{value} 万人'
+                            }
+                        },
+                        series: [
+                            {
+                                name: '感染人数',
+                                type: 'line',
+                                data: data[1],
+                            },
+                            {
+                                name: '康复人数',
+                                type: 'line',
+                                data: data[2],
+                            }
+                        ]
+                    };
+
+                    myChart.setOption(option);
+                }
+            })
+        }
+    </script>
+
+</body>
+</html>
